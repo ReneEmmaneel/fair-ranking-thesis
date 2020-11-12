@@ -99,9 +99,9 @@ if __name__ == "__main__":
 
     #load the relevant data for given article
     if args.id:
-        article_data = get_data(args.id, data, False)
+        article_data = get_data(args.id, None, False)
     else:
-        article_data = get_data(args.sha, data, True)
+        article_data = get_data(args.sha, None, True)
 
     print_article_data(article_data)
 
