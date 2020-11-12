@@ -1,24 +1,22 @@
 General todo-list:
 
-This list represents a plan on the short-medium (1 to 2 weeks) term:
+This list represents a plan on the short (1 to 2 weeks) term:
 
 [x] Make loader, which takes in data files as arguments and put the file paths into config files
 [x] Make function for processing the files to datatables using pandas
 
 []  Learn about the "Semantic Scolar (S2) Open Corpus" and compare it to the TREC2020 fair ranking track format
 []  Extract articles' meta data from "Semantic Scholar (S2) Open Corpus" and save the data in the same format as TREC2020 fair ranking track.
-    http://s2-public-api-prod.us-west-2.elasticbeanstalk.com/corpus/download/
 
 []  Create function to combine data from these different files given a document id
 [X] Learn about Support Vector Machines
 []  Learn about Ranking SVM
-[]  Make python file to create a framework for extracting features given query + document id
 
-[]  Make a small framework for creating various features
+[]  Make python file to create a framework for extracting features given query + document id
 []  Make a few features:
 []  Query-dependent such as tf–idf
-[]  Other simple (and probable not useful in the end product) queries, mainly for testing the feature framework
+[]  Other simple features regarding the metadata of the document using the sementic scolar open corpus data
 []  Analyse previous work for determining which (types of) features should be extracted
 
 []  Make a function to turn (Query, document id) pairs into feature vectors
-[]  Use the training set to create a (framwork for creating a) simple Ranking SVM model
+[]  Use the training set to create a (framework for creating a) simple Ranking SVM model
