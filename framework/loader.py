@@ -77,6 +77,7 @@ def parse_arguments():
 def parse_files(input_dict=None):
     #given a dict with keys and filenames, extract the data from the given files
     #and return a dict with key and datatable pairs
+    #When no dict is given, the data from the config file will be used
     if input_dict == None:
         config = configparser.SafeConfigParser()
         config.read(config_path)
