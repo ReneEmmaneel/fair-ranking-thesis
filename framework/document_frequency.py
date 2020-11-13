@@ -30,7 +30,7 @@ def term_frequency(query, vectorizer, corpus_vector):
     # Get the TF-IDF scores for the query, use that to calculate
     # the relevance for each corpus_vector_row
     # TODO: currently idf score for each word in the query is just added to
-    # create a feature score. This is not ideal
+    # create a feature score. This is (probably) not ideal
     transformed = vectorizer.transform([query])
     ctransformed = transformed.tocoo()
     query_cols = ctransformed.col
