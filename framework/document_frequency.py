@@ -47,6 +47,15 @@ def term_frequency(query, vectorizer, corpus_vector):
         feature[article] = score
     return feature
 
+def term_frequency_article(query_cols, corpus_vector, id):
+    try:
+        score = 0
+        for col in query_cols:
+            score += corpus_vector[id, col]
+        return score
+    except IndexError:
+        return None
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-q", "--query", dest="query", required=True,

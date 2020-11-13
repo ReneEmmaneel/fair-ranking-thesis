@@ -71,6 +71,14 @@ def get_data(id_or_sha, data = None, use_sha = False):
 
     return {'article': article, 'metadata': s2_metadata, 'authors': authors}
 
+def sha_to_id(data, sha):
+    pf = data['paper_file']
+    article =  pf.index[pf['paper_sha'] == sha].tolist()
+    if len(article) > 0:
+        return article[0]
+    else:
+        return None
+
 def print_article_data(article_data):
     print('data for article \'{}\':'.format(article_data['article']['paper_title']))
 
