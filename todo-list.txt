@@ -28,4 +28,4 @@ so for this step just a simple framework using a few sklearn functions is enough
 
 [X] Make a function to turn (Query, document id) pairs into feature vectors
 [X] Make a function to turn training data (see TREC-Fair-Ranking-training-sample.json) into SVM
-[]  Use the training set to create a (framework for creating a) simple Ranking SVM model
+[X] Use the training set to create a (framework for creating a) simple Ranking SVM model
