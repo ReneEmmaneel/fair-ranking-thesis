@@ -144,27 +144,38 @@ if __name__ == '__main__':
                         help="training data in libsvm format", metavar="FILE")
     parser.add_argument("-p", "--pickle", dest="pickle_folder", required=False,
                         help="dump pickle info", metavar="FOLDER")
+    parser.add_argument("--score", dest="score", required=False, action="store_true",
+                        help="score pickled model")
 
     args = parser.parse_args()
 
-    if args.libsvm_file:
-        X_trans, y_trans = import_libsvm(args.libsvm_file)
-        #X_trans = preprocessing.scale(X_trans)
-
-        if args.pickle_folder:
-            pickle.dump(X_trans, open(args.pickle_folder + 'X_trans', 'wb'))
-            pickle.dump(y_trans, open(args.pickle_folder + 'y_trans', 'wb'))
-    elif args.pickle_folder:
+    if args.pickle_folder and args.score:
+        model = pickle.load(open(args.pickle_folder + 'model', 'rb'))
         X_trans = pickle.load(open(args.pickle_folder + 'X_trans', 'rb'))
         y_trans = pickle.load(open(args.pickle_folder + 'y_trans', 'rb'))
+        print('Performance of ranking {}'.format(model.score(X_trans, y_trans)))
     else:
-        print('Specify either libsvm_file or picle_folder')
-        os._exit(0)
+        if args.libsvm_file:
+            X_trans, y_trans = import_libsvm(args.libsvm_file)
+            #X_trans = preprocessing.scale(X_trans)
 
-    print('loaded! now for training')
-    X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.1)
+            if args.pickle_folder:
+                pickle.dump(X_trans, open(args.pickle_folder + 'X_trans', 'wb'))
+                pickle.dump(y_trans, open(args.pickle_folder + 'y_trans', 'wb'))
+        elif args.pickle_folder:
+            X_trans = pickle.load(open(args.pickle_folder + 'X_trans', 'rb'))
+            y_trans = pickle.load(open(args.pickle_folder + 'y_trans', 'rb'))
+        else:
+            print('Specify either libsvm_file or picle_folder')
+            os._exit(0)
 
-    #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
-    #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-    rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 1000)
-    print('Performance of ranking {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
+        print('loaded! now for training')
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.2)
+
+        #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
+        #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000)
+        print('Performance of ranking {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
+
+        if args.pickle_folder:
+            model = pickle.dump(rank_svm, open(args.pickle_folder + 'model', 'wb'))
