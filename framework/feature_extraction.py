@@ -151,12 +151,12 @@ def training_file_to_libsvm(input_file, data, output_file, features, verbose = F
             if id == None:
                 continue
 
-            feature_vector = []
+            feature_vector = [index]
 
-            for index, f in enumerate(features):
+            for index_feature, f in enumerate(features):
                 new_features = f.get_features(id)
                 if new_features == None:
-                    print('error on line {}, feature {}'.format(index, f.get_name()))
+                    print('error on line {}, feature {}'.format(index_feature, f.get_name()))
                 feature_vector.extend(new_features)
 
 

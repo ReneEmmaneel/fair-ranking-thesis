@@ -37,10 +37,10 @@ def import_libsvm(file):
     y_new = []
     comb = itertools.combinations(range(len(X)), 2)
     for k, (i, j) in enumerate(comb):
-        if y[i] == y[j]:
-            # skip if same relevance
+        if y[i] == y[j] or (not X[i][0] == X[j][0]):
             continue
-        X_new.append(X[i] - X[j])
+            # skip if same relevance or not the same query
+        X_new.append(X[i][1:] - X[j][1:])
         y_new.append(np.sign(y[i] - y[j]))
         # output balanced classes
         if y_new[-1] != (-1) ** k:
@@ -80,7 +80,7 @@ class RankSVM(svm.LinearSVC):
         # Create a template lit to store accuracies
         acc = []
 
-        iterations = np.logspace(0,3, num = 6)
+        iterations = np.logspace(0,5, num = 6)
 
         # Iterate along a logarithmically spaced ranged
         for i in iterations:
@@ -170,11 +170,11 @@ if __name__ == '__main__':
             os._exit(0)
 
         print('loaded! now for training')
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.2)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.5)
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 500000)
         print('Performance of ranking {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 
         if args.pickle_folder:
