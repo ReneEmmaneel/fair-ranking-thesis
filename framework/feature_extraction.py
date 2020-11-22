@@ -140,6 +140,7 @@ def training_file_to_libsvm(input_file, data, output_file, features, verbose = F
             print('Current progress: {}/{}'.format(index + 1, training_data.shape[0]), end='\r')
 
         query = row['query']
+        qid = row['qid']
 
         for f in features:
             f.process_query(query)
@@ -151,7 +152,7 @@ def training_file_to_libsvm(input_file, data, output_file, features, verbose = F
             if id == None:
                 continue
 
-            feature_vector = [index]
+            feature_vector = []
 
             for index_feature, f in enumerate(features):
                 new_features = f.get_features(id)
@@ -161,7 +162,7 @@ def training_file_to_libsvm(input_file, data, output_file, features, verbose = F
 
 
             with open(output_file, "a") as out:
-                out.write("{} {}\n".format(relevance, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
+                out.write("{} qid:{} {}\n".format(relevance, qid, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
 
     if verbose:
         print("\nFeature extraction done! Saved in libsvm format to {}".format(output_file))

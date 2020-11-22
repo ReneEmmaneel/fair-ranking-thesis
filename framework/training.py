@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 500000)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000)
         print('Performance of ranking {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 
         if args.pickle_folder:
