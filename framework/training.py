@@ -14,6 +14,13 @@ import pandas as pd
 import pickle
 filterwarnings('ignore')
 
+def validate_file(f):
+    if not os.path.exists(f):
+        # Argparse uses the ArgumentTypeError to give a rejection message like:
+        # error: argument input: x does not exist
+        raise argparse.ArgumentTypeError("{0} does not exist".format(f))
+    return f
+
 def import_libsvm(file):
     """Given a file in libsvm format, transform it into pairs of relevant/irrelevant
     In this method, all pairs are choosen, except for those that have the
@@ -140,31 +147,33 @@ if __name__ == '__main__':
     # and print the performance of ranking vs linear regression
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", dest="libsvm_file", required=False,
+    parser.add_argument("-f", "--file", dest="libsvm_file", required=False, type=validate_file,
                         help="training data in libsvm format", metavar="FILE")
-    parser.add_argument("-p", "--pickle", dest="pickle_folder", required=False,
+    parser.add_argument("-p", "--pickle", dest="pickle_folder", required=False, type=validate_file,
                         help="dump pickle info", metavar="FOLDER")
     parser.add_argument("--score", dest="score", required=False, action="store_true",
                         help="score pickled model")
 
     args = parser.parse_args()
 
-    if args.pickle_folder and args.score:
-        model = pickle.load(open(args.pickle_folder + 'model', 'rb'))
-        X_trans = pickle.load(open(args.pickle_folder + 'X_trans', 'rb'))
-        y_trans = pickle.load(open(args.pickle_folder + 'y_trans', 'rb'))
+
+
+    if args.pickle_folder and os.path.exists(args.pickle_folder) and args.score:
+        model = pickle.load(open(os.path.join(args.pickle_folder, 'model'), 'rb'))
+        X_trans = pickle.load(open(os.path.join(args.pickle_folder, 'X_trans'), 'rb'))
+        y_trans = pickle.load(open(os.path.join(args.pickle_folder, 'y_trans'), 'rb'))
         print('Performance of ranking {}'.format(model.score(X_trans, y_trans)))
     else:
         if args.libsvm_file:
             X_trans, y_trans = import_libsvm(args.libsvm_file)
             #X_trans = preprocessing.scale(X_trans)
 
-            if args.pickle_folder:
-                pickle.dump(X_trans, open(args.pickle_folder + 'X_trans', 'wb'))
-                pickle.dump(y_trans, open(args.pickle_folder + 'y_trans', 'wb'))
-        elif args.pickle_folder:
-            X_trans = pickle.load(open(args.pickle_folder + 'X_trans', 'rb'))
-            y_trans = pickle.load(open(args.pickle_folder + 'y_trans', 'rb'))
+            if args.pickle_folder and os.path.exists(args.pickle_folder):
+                pickle.dump(X_trans, open(os.path.join(args.pickle_folder, 'X_trans'), 'wb'))
+                pickle.dump(y_trans, open(os.path.join(args.pickle_folder, 'y_trans'), 'wb'))
+        elif args.pickle_folder and os.path.exists(args.pickle_folder):
+            X_trans = pickle.load(open(os.path.join(args.pickle_folder, 'X_trans'), 'rb'))
+            y_trans = pickle.load(open(os.path.join(args.pickle_folder, 'y_trans'), 'rb'))
         else:
             print('Specify either libsvm_file or picle_folder')
             os._exit(0)
@@ -177,5 +186,5 @@ if __name__ == '__main__':
         rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000)
         print('Performance of ranking {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 
-        if args.pickle_folder:
+        if args.pickle_folder and os.path.exists(args.pickle_folder):
             model = pickle.dump(rank_svm, open(args.pickle_folder + 'model', 'wb'))
