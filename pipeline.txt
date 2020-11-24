@@ -1,0 +1,21 @@
+The current pipeline, this file is just different commands someone can execute
+Note that the folder with data and folder with pickled data is located outside
+the git repository
+
+In my local enviorenment the folders are located as follows:
+../thesis/data/ -> folder with corpus (subsets)
+../thesis/pickle/ -> folder with pickled X_trans, y_trans, model
+
+execute commands in the framework folder
+python3 extract_open_corpus.py #given open corpus file, extract data to TREC format (not usuable atm)
+python3 loader.py #fill config file
+python3 data_combining.py #print data of specific article
+
+Step 1, extract features and store it in libsvm format:
+python3 feature_extraction.py -f ../../thesis/data/TREC-Fair-Ranking-training-sample.json -o ../output/test1.txt
+
+Step 2, train using
+python3 training.py -f ../output/smaller.txt -p ../../thesis/pickle/
+
+Step 3, score model
+python3 training.py --score -p ../../thesis/pickle/
