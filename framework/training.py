@@ -12,6 +12,7 @@ from sklearn import svm, linear_model, model_selection, datasets, preprocessing
 from warnings import filterwarnings
 import pandas as pd
 import pickle
+import sys
 filterwarnings('ignore')
 
 def validate_file(f):
@@ -36,18 +37,19 @@ def import_libsvm(file):
     y_trans : array, shape (k,)
         Output class labels, where classes have values {-1, +1}
     """
-    data = datasets.load_svmlight_file(file)
+    data = datasets.load_svmlight_file(file, query_id = True)
     X = data[0].toarray()
     y = data[1]
+    qid = data[2]
 
     X_new = []
     y_new = []
     comb = itertools.combinations(range(len(X)), 2)
     for k, (i, j) in enumerate(comb):
-        if y[i] == y[j] or (not X[i][0] == X[j][0]):
+        if y[i] == y[j] or (not qid[i] == qid[j]):
             continue
             # skip if same relevance or not the same query
-        X_new.append(X[i][1:] - X[j][1:])
+        X_new.append(X[i] - X[j])
         y_new.append(np.sign(y[i] - y[j]))
         # output balanced classes
         if y_new[-1] != (-1) ** k:
@@ -64,7 +66,7 @@ class RankSVM(svm.LinearSVC):
     See object :ref:`svm.LinearSVC` for a full description of parameters.
     """
 
-    def fit(self, X_trans, y_trans, max_iter = 1000):
+    def fit(self, X_trans, y_trans, max_iter = 1000, verbose = 1):
         """
         Fit a pairwise ranking model.
         Parameters
@@ -76,6 +78,7 @@ class RankSVM(svm.LinearSVC):
         -------
         self
         """
+        self.verbose = verbose
         self.max_iter = max_iter
         super(RankSVM, self).fit(X_trans, y_trans)
         return self
@@ -143,9 +146,6 @@ class RankSVM(svm.LinearSVC):
 
 
 if __name__ == '__main__':
-    # as showcase, we will create some non-linear data
-    # and print the performance of ranking vs linear regression
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", dest="libsvm_file", required=False, type=validate_file,
                         help="training data in libsvm format", metavar="FILE")
@@ -162,11 +162,15 @@ if __name__ == '__main__':
         model = pickle.load(open(os.path.join(args.pickle_folder, 'model'), 'rb'))
         X_trans = pickle.load(open(os.path.join(args.pickle_folder, 'X_trans'), 'rb'))
         y_trans = pickle.load(open(os.path.join(args.pickle_folder, 'y_trans'), 'rb'))
-        print('Performance of ranking {}'.format(model.score(X_trans, y_trans)))
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.99)
+
+        print('Performance of training set {}'.format(model.score(X_trans, y_trans)))
+        print('Performance of testing set {}'.format(model.score(X_trans_test, y_trans_test)))
+        print(model.coef_)
     else:
         if args.libsvm_file:
             X_trans, y_trans = import_libsvm(args.libsvm_file)
-            #X_trans = preprocessing.scale(X_trans)
+            X_trans = preprocessing.scale(X_trans)
 
             if args.pickle_folder and os.path.exists(args.pickle_folder):
                 pickle.dump(X_trans, open(os.path.join(args.pickle_folder, 'X_trans'), 'wb'))
@@ -178,13 +182,16 @@ if __name__ == '__main__':
             print('Specify either libsvm_file or picle_folder')
             os._exit(0)
 
-        print('loaded! now for training')
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.5)
+        print('loaded! start of training')
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.99)
+
+        print('length of dataset: {}'.format(len(y_trans)))
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000)
-        print('Performance of ranking {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 2 ** 31 - 1, verbose = 0)
+        print('Performance of training set {}'.format(rank_svm.score(X_trans, y_trans)))
+        print('Performance of testing set {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 
         if args.pickle_folder and os.path.exists(args.pickle_folder):
             model = pickle.dump(rank_svm, open(args.pickle_folder + 'model', 'wb'))

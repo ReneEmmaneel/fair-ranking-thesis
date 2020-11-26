@@ -35,6 +35,9 @@ class Feature:
         return [get_name()]
 
 class IDF_Feature(Feature):
+    """IDF type features.
+    This feature consist of: TF, IDF, TF_IDF, BM25, LMIR
+    """
     def __init__(self, file, column, data):
         self.query_dependant = True
         self.document_dependant = True
@@ -56,7 +59,10 @@ class IDF_Feature(Feature):
         return "IDF feature"
 
     def get_feature_names(self):
-        return ['TF(q, d) in {}'.format(self.column), 'IDF(q) in {}'.format(self.column), 'TF_IDF(q, d) in {}'.format(self.column), 'BM25 of {}'.format(self.column)]
+        return ['TF(q, d) in {}'.format(self.column), 'IDF(q) in {}'.format(self.column),
+                'TF_IDF(q, d) in {}'.format(self.column), 'BM25 of {}'.format(self.column),
+                'LMIR_ABS(q, d) in {}'.format(self.column), 'LMIR_DIR(q, d) in {}'.format(self.column),
+                'LMIR_JM(q, d) in {}'.format(self.column)]
 
     def process_query(self, query):
         self.get_vectorize(query)
@@ -75,7 +81,10 @@ class IDF_Feature(Feature):
         idf_feature = document_frequency.inverse_document_frequency_feature(self.query_cols, self.idf_vector)
         tfidf_feature = document_frequency.term_frequency_inverse_document_frequency_feature(self.query_cols, self.tfidf_matrix, id)
         bm25 = document_frequency.bm25_feature(self.query_cols, self.tf_matrix, self.idf_vector, self.doc_length_vector, self.doc_average, id)
-        return [tf_feature, idf_feature, tfidf_feature, bm25]
+        lmir_abs = document_frequency.lmir_abs_feature(self.query_cols, self.tf_matrix, self.doc_length_vector, id)
+        lmir_dir = document_frequency.lmir_dir_feature(self.query_cols, self.tf_matrix, self.doc_length_vector, id)
+        lmir_jm = document_frequency.lmir_jm_feature(self.query_cols, self.tf_matrix, self.doc_length_vector, id)
+        return [tf_feature, idf_feature, tfidf_feature, bm25, lmir_abs, lmir_dir, lmir_jm]
 
 class LEN_Feature(Feature):
     def __init__(self, file, column, data):

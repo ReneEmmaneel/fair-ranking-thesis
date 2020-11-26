@@ -7,10 +7,12 @@
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
+import math
 import pandas as pd
 import argparse, os
 import numpy as np
 import loader
+
 
 def load_corpus(file, column, data = None):
     if data == None:
@@ -88,6 +90,86 @@ def bm25_feature(query_cols, tf_matrix, idf_vector, doc_length_vector, doc_avera
             tf = tf_matrix[id, col]
             score += idf * (tf * (k + 1.) / (tf + k * (1. - b + b * d / doc_average)))
         return score
+    except IndexError:
+        return None
+
+def lmir_jm_feature(query_cols, tf_matrix, doc_length_vector, id, l = 0.1):
+    """the Jelinek Mercer LMIR feature
+
+    P(t | d) = (1 - lambda) (TF(t, d) / LEN(d)) + lambda P(t | C)"""
+    try:
+        d = doc_length_vector[id, 0]
+
+        tot_tf_count_vector = tf_matrix.sum(axis=0)
+        tot_tf_count = doc_length_vector.sum()
+
+        score = 0
+        for col in query_cols:
+            if d == 0:
+                continue
+
+
+            tf = tf_matrix[id, col]
+            prob_corpus = tot_tf_count_vector[0, col] / tot_tf_count
+
+            prob_term = (1 - l) * tf / d + l * prob_corpus
+            score -= math.log(prob_term)
+
+        return None if math.isnan(score) else score
+    except IndexError:
+        return None
+
+def lmir_dir_feature(query_cols, tf_matrix, doc_length_vector, id, mu = 2000):
+    """the Dirichlet LMIR feature
+
+    P(t | d) = (TF(t) + mu * P(w | C)) / (LEN(d) + mu)
+    """
+    try:
+        d = doc_length_vector[id, 0]
+
+        tot_tf_count_vector = tf_matrix.sum(axis=0)
+        tot_tf_count = doc_length_vector.sum()
+
+        score = 0
+        for col in query_cols:
+            if d == 0:
+                continue
+
+            tf = tf_matrix[id, col]
+            prob_corpus = tot_tf_count_vector[0, col] / tot_tf_count
+
+            prob_term = (tf + mu * prob_corpus) / (d + mu)
+            score -= math.log(prob_term)
+
+        return None if math.isnan(score) else score
+    except IndexError:
+        return None
+
+def lmir_abs_feature(query_cols, tf_matrix, doc_length_vector, id, delta = 0.7):
+    """the Dirichlet LMIR feature
+
+    P(t | d) = (max(TF - delta, 0) / doc_len) + delta * unique_terms / d * P(t | C)
+    """
+    try:
+        d = doc_length_vector[id, 0]
+
+        tot_tf_count_vector = tf_matrix.sum(axis=0)
+        tot_tf_count = doc_length_vector.sum()
+
+        score = 0
+        for col in query_cols:
+            if d == 0:
+                continue
+
+            tf = tf_matrix[id, col]
+            prob_corpus = tot_tf_count_vector[0, col] / tot_tf_count
+
+            unique_terms = tf_matrix[:,col].count_nonzero()
+
+            prob_term = max(tf - delta,0) / d + delta * unique_terms / d * prob_corpus
+            score -= math.log(prob_term)
+
+        return None if math.isnan(score) else score
     except IndexError:
         return None
 
