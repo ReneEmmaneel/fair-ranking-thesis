@@ -144,6 +144,15 @@ class RankSVM(svm.LinearSVC):
         """
         return np.mean(super(RankSVM, self).predict(X_trans) == y_trans)
 
+    def predict_single(self, feature_vec1, feature_vec2):
+        """
+        Given two feature vectors, return 1.0 vector 1 is predicted to be ranked higher,
+        -1.0 if vector2 is predicted to be ranked higher.
+        """
+        feature_vec = [f1 - f2 for f1, f2 in zip(feature_vec1, feature_vec2)]
+        return super(RankSVM, self).predict([feature_vec])[0]
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -156,8 +165,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
-
     if args.pickle_folder and os.path.exists(args.pickle_folder) and args.score:
         model = pickle.load(open(os.path.join(args.pickle_folder, 'model'), 'rb'))
         X_trans = pickle.load(open(os.path.join(args.pickle_folder, 'X_trans'), 'rb'))
@@ -166,7 +173,6 @@ if __name__ == '__main__':
 
         print('Performance of training set {}'.format(model.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(model.score(X_trans_test, y_trans_test)))
-        print(model.coef_)
     else:
         if args.libsvm_file:
             X_trans, y_trans = import_libsvm(args.libsvm_file)
@@ -183,13 +189,13 @@ if __name__ == '__main__':
             os._exit(0)
 
         print('loaded! start of training')
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.99)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.8)
 
         print('length of dataset: {}'.format(len(y_trans)))
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 2 ** 31 - 1, verbose = 0)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000, verbose = 0)
         print('Performance of training set {}'.format(rank_svm.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 
