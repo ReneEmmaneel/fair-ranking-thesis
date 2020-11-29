@@ -3,7 +3,7 @@
 # File to extract Semantic Scolar (S2) Open Corpus to TREC format
 # See thesis for formal full definition of TREC format
 #
-# usage: extract_open_corpus.py [-h] -c FILE [-s FOLDER]
+# usage: extract_open_corpus.py [-h] -c FILE -s FOLDER
 # example:
 # python3 extract_open_corpus.py -c ../../thesis/data/corpus-subset-for-queries.jsonl -s ../../thesis/extract_open_corpus_test/
 
@@ -26,7 +26,7 @@ def parse_corpus_files(corpus_file):
     pd.set_option('mode.chained_assignment', None)
     corpus_data = pd.read_json(corpus_file, lines = True)
     trec_paper_data = corpus_data[['id', 'title', 'year', 'venue', 'authors', 'inCitations', 'outCitations']]
-    trec_paper_data.rename(columns={'id': 'paper_sha', 'title': 'paper_title', 'year': 'paper_year', 'venue': 'paper_venue', 'inCitations': 'n_citations', 'outCitations': 'n_key_citations'},  inplace=True)
+    trec_paper_data.rename(columns={'id': 'paper_sha', 'title': 'paper_title', 'year': 'paper_year', 'venue': 'paper_venue', 'outCitations': 'n_citations', 'inCitations': 'n_key_citations'},  inplace=True)
 
     trec_paper_data['n_citations'] = trec_paper_data.apply(lambda x: len(x['n_citations']),axis=1)
     trec_paper_data['n_key_citations'] = trec_paper_data.apply(lambda x: len(x['n_key_citations']),axis=1)
@@ -59,7 +59,7 @@ def parse_corpus_files(corpus_file):
             if paper_citations[-i] >= i:
                 h_index = i
                 break
-        h_class = 'H' if h_index >= 10 else 0
+        h_class = 'H' if h_index >= 10 else 'L'
         trec_author_list.append({'corpus_author_id': id,'name': author['name'], 'num_citations': citation_count, 'num_papers': paper_count, 'i10': i10, 'h_index': h_index, 'h_class': h_class})
 
     trec_author_data = pd.DataFrame(trec_author_list)
@@ -72,13 +72,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--corpus", dest="corpus_file", required=True, type=validate_file,
                         help="corpus file", metavar="FILE")
-    parser.add_argument("-s", "--save", dest="save_folder", required=False, type=validate_file,
+    parser.add_argument("-s", "--save", dest="save_folder", required=True, type=validate_file,
                         help="folder to save to", metavar="FOLDER")
 
     args = parser.parse_args()
+
     trec_paper_data, trec_author_data, trec_linking_data = parse_corpus_files(args.corpus_file)
 
-    if args.save_folder and os.path.exists(args.save_folder):
-        trec_paper_data.to_csv(index=False, path_or_buf=os.path.join(args.save_folder, 'corpus-subset-for-queries.papers.csv'))
-        trec_author_data.to_csv(index=False, path_or_buf=os.path.join(args.save_folder, 'corpus-subset-for-queries.authors.csv'))
-        trec_linking_data.to_csv(index=False, path_or_buf=os.path.join(args.save_folder, 'corpus-subset-for-queries.paper_authors.csv'))
+    trec_paper_data.to_csv(index=False, path_or_buf=os.path.join(args.save_folder, 'corpus-subset-for-queries.papers.csv'))
+    trec_author_data.to_csv(index=False, path_or_buf=os.path.join(args.save_folder, 'corpus-subset-for-queries.authors.csv'))
+    trec_linking_data.to_csv(index=False, path_or_buf=os.path.join(args.save_folder, 'corpus-subset-for-queries.paper_authors.csv'))

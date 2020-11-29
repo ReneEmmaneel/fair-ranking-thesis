@@ -11,11 +11,19 @@ python3 extract_open_corpus.py #given open corpus file, extract data to TREC for
 python3 loader.py #fill config file
 python3 data_combining.py #print data of specific article
 
-Step 1, extract features and store it in libsvm format:
-python3 feature_extraction.py -f ../../thesis/data/TREC-Fair-Ranking-training-sample.json -o ../output/test1.txt
+Step 1, create subset for corpus:
+python3 create_corpus_subset.py -t ../data2019/fair-TREC-training-sample.json -o ../data2019/corpus-subset-for-queries.jsonl
 
-Step 2, train using
-python3 training.py -f ../output/smaller.txt -p ../../thesis/pickle/
+Step 2, extract corpus:
+python3 extract_open_corpus.py -c ../data2019/corpus-subset-for-queries.jsonl -s ../data2019/
 
-Step 3, score model
-python3 training.py --score -p ../../thesis/pickle/
+Step 3, update config file
+
+Step 4, extract features and store it in libsvm format:
+python3 feature_extraction.py -f ../data2019/TREC-Fair-Ranking-training-sample.json -o ../output/
+
+Step 5, train using
+python3 training.py -f ../output/libsvm.txt -p ../pickle/
+
+Step 6, score model
+python3 training.py --score -p ../pickle/

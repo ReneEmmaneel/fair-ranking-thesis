@@ -25,7 +25,7 @@ def load_corpus(file, column, data = None):
 
 def vectorize(corpus):
     #Generate tf-vector, idf-vector, idf-matrix and return the values
-    #Also returns the vecgtorizer object
+    #Also returns the vectorizer object
     vectorizer = TfidfVectorizer()
     fit = vectorizer.fit(corpus)
     tfidf_matrix = vectorizer.transform(corpus)

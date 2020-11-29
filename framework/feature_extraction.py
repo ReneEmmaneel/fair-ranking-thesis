@@ -135,7 +135,8 @@ class NUM_Feature(Feature):
         return ["num of {}".format(self.column)]
 
 def training_file_to_libsvm(input_file, data, output_file, features, verbose = False, max_rows = None):
-    training_data = pd.read_json(input_file, lines = True)
+    print(input_file)
+    training_data = pd.read_json(input_file, lines=True)
 
     #empty output file
     try:
@@ -190,11 +191,9 @@ if __name__ == '__main__':
 
     features = [IDF_Feature('corpus_file', 'paperAbstract', data),
                 IDF_Feature('corpus_file', 'title', data),
-                IDF_Feature('corpus_file', 'journalName', data),
                 IDF_Feature('corpus_file', 'venue', data),
                 LEN_Feature('corpus_file', 'paperAbstract', data),
                 LEN_Feature('corpus_file', 'title', data),
-                LEN_Feature('corpus_file', 'journalName', data),
                 LEN_Feature('corpus_file', 'venue', data),
                 NUM_Feature('paper_file', 'n_citations', data)
                 ]

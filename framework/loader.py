@@ -97,6 +97,8 @@ def parse_files(input_dict=None):
             print("ValueError: pandas failed to read file " + key)
             output_dict[key] = None
 
+    output_dict['corpus_file'] = output_dict['corpus_file'].fillna(value='')
+
     return output_dict
 
 def display_datatable_dict(datatable_dict, max_rows = 10):
