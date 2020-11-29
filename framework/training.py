@@ -169,7 +169,7 @@ if __name__ == '__main__':
         model = pickle.load(open(os.path.join(args.pickle_folder, 'model'), 'rb'))
         X_trans = pickle.load(open(os.path.join(args.pickle_folder, 'X_trans'), 'rb'))
         y_trans = pickle.load(open(os.path.join(args.pickle_folder, 'y_trans'), 'rb'))
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.99)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.5)
 
         print('Performance of training set {}'.format(model.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(model.score(X_trans_test, y_trans_test)))
@@ -189,13 +189,13 @@ if __name__ == '__main__':
             os._exit(0)
 
         print('loaded! start of training')
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.8)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.5)
 
         print('length of dataset: {}'.format(len(y_trans)))
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 10000, verbose = 0)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 100000, verbose = 0)
         print('Performance of training set {}'.format(rank_svm.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 

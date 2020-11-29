@@ -1,15 +1,27 @@
 General todo-list:
 
-This list represents a plan on the short term:
 
-[x] Make loader, which takes in data files as arguments and put the file paths into config files
-[x] Make function for processing the files to datatables using pandas
+Things to complete in the sort term:
+
+[]  Add MRR function for ranking of model
+
+[]  Continue on thesis about things already implemented
+[]  Start writing about fair ranking in thesis + continue reading papers
+
+[]  Make plan about needed functionality for fair ranking
+[]  Execute that plan...
+
+List of things that are completed:
+
+[X] Make loader, which takes in data files as arguments and put the file paths into config files
+[X] Make function for processing the files to datatables using pandas
 
 [X] Learn about the "Semantic Scolar (S2) Open Corpus" and compare it to the TREC2020 fair ranking track format
-[X] Extract articles' meta data from "Semantic Scholar (S2) Open Corpus" and save the data in the same format as TREC2020 fair ranking track.
-  Sort of done, the Open Corpus data given by TREC is used
-[X]  Make a function for turning S2 Open Corpus data into TREC format (in other words, given the corpus.jsonl, generate authors.csv, papers.csv, paper_authors.csv)
-[]  Extract the data
+[X] Create a function for using the API provided by the open corpus to download the needed Open Corpus document data
+[X] Create a function to download all the data and turn the needed data for 2019 into the corpus subset format like in 2020
+[X] Make a function for turning S2 Open Corpus data into TREC format (in other words, given the corpus.jsonl, generate authors.csv, papers.csv, paper_authors.csv)
+[X] Extract the data
+[X] Add the data to git (using git-lfs for big files)
 
 [X] Create function to combine data from these different files given a document id
 [X] Learn about Support Vector Machines
@@ -21,8 +33,8 @@ This list represents a plan on the short term:
 [X] Make TF, IDF and TF_IDF features
 [X] Make BM25 features
 [X] Make lmir features (abs, jm, dir)
-[/] Other simple features regarding the metadata of the document using the sementic scolar open corpus data
-[/] Analyse previous work for determining which (types of) features should be extracted
+[X] Other simple features regarding the metadata of the document using the sementic scolar open corpus data
+[X] Analyse previous work for determining which (types of) features should be extracted
 
 This feature framework should be as robust as possible because there are many possible features,
 potentially dozens will be used. It is hard to say what is needed for the final product,
@@ -33,4 +45,3 @@ so for this step just a simple framework using a few sklearn functions is enough
 [X] Use the training set to create a (framework for creating a) simple Ranking SVM model
 [X] Make a file for creating function to measure on how well the model ranks
 [X] Add DCG function
-[]  Add MRR

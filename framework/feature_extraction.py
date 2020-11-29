@@ -135,7 +135,6 @@ class NUM_Feature(Feature):
         return ["num of {}".format(self.column)]
 
 def training_file_to_libsvm(input_file, data, output_file, features, verbose = False, max_rows = None):
-    print(input_file)
     training_data = pd.read_json(input_file, lines=True)
 
     #empty output file
