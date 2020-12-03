@@ -132,7 +132,7 @@ def relevance_ranking(data, ranked_list, gamma=0.5, stop_prob=0.7):
         for doc in query[1]:
             relevance = doc[0]
 
-            total_relevance += exposure * relevance
+            total_relevance += exposure * relevance * stop_prob
 
             exposure *= gamma
             exposure *= (1 - stop_prob * relevance)
@@ -207,7 +207,7 @@ def fairness_ranking(data, ranked_list, group_file, gamma=0.5, stop_prob=0.7, ve
     if verbose:
         print('fair exposure: {}'.format(math.sqrt(squared_sum)))
 
-    return (squared_sum, group_exposure_and_relevance)
+    return (math.sqrt(squared_sum), group_exposure_and_relevance)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
