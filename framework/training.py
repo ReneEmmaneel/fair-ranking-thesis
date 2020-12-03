@@ -37,7 +37,7 @@ def import_libsvm(file):
     y_trans : array, shape (k,)
         Output class labels, where classes have values {-1, +1}
     """
-    data = datasets.load_svmlight_file(file, query_id = True)
+    data = datasets.load_svmlight_file(file, query_id = True, multilabel=True)
     X = data[0].toarray()
     y = data[1]
     qid = data[2]
@@ -46,7 +46,7 @@ def import_libsvm(file):
     y_new = []
     comb = itertools.combinations(range(len(X)), 2)
     for k, (i, j) in enumerate(comb):
-        if y[i] == y[j] or (not qid[i] == qid[j]):
+        if y[i][0] == y[j][0] or (not qid[i] == qid[j]):
             continue
             # skip if same relevance or not the same query
         X_new.append(X[i] - X[j])

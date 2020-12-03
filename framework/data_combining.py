@@ -38,7 +38,7 @@ def load_s2_data(data, article):
 
 def load_authors(data, authors):
     author_list = np.array([author['ids'] for author in authors])
-    author_int_ids = [int(id) for id in author_list.flatten()]
+    author_int_ids = [int(id) for id in author_list.flatten() if id is not None]
     af = data['author_metadata_file']
     author_data = af[af['corpus_author_id'].isin(author_int_ids)]
     return author_data

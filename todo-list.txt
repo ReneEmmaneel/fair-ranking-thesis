@@ -3,10 +3,10 @@ General todo-list:
 
 Things to complete in the sort term:
 
-[]  Add MRR function for ranking of model
+[X] Add fairness function for ranking of model
 
 []  Continue on thesis about things already implemented
-[]  Start writing about fair ranking in thesis + continue reading papers
+[X] Start writing about fair ranking in thesis + continue reading papers
 
 []  Make plan about needed functionality for fair ranking
 []  Execute that plan...

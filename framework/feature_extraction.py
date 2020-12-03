@@ -171,7 +171,7 @@ def training_file_to_libsvm(input_file, data, output_file, features, verbose = F
 
 
             with open(output_file, "a") as out:
-                out.write("{} qid:{} {}\n".format(relevance, qid, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
+                out.write("{},{} qid:{} {}\n".format(relevance, id, qid, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
 
     if verbose:
         print("\nFeature extraction done! Saved in libsvm format to {}".format(output_file))
