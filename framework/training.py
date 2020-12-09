@@ -50,7 +50,7 @@ def import_libsvm(file):
             continue
             # skip if same relevance or not the same query
         X_new.append(X[i] - X[j])
-        y_new.append(np.sign(y[i] - y[j]))
+        y_new.append(np.sign(y[i][0] - y[j][0]))
         # output balanced classes
         if y_new[-1] != (-1) ** k:
             y_new[-1] = - y_new[-1]
@@ -160,8 +160,11 @@ if __name__ == '__main__':
                         help="training data in libsvm format", metavar="FILE")
     parser.add_argument("-p", "--pickle", dest="pickle_folder", required=False, type=validate_file,
                         help="dump pickle info", metavar="FOLDER")
+    parser.add_argument("-i", "--iter", dest="iter", required=False,
+                        help="amount of iterations", metavar="INT")
     parser.add_argument("--score", dest="score", required=False, action="store_true",
                         help="score pickled model")
+    parser.set_defaults(iter=1000)
 
     args = parser.parse_args()
 
@@ -189,15 +192,15 @@ if __name__ == '__main__':
             os._exit(0)
 
         print('loaded! start of training')
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.5)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.99)
 
         print('length of dataset: {}'.format(len(y_trans)))
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = 100000, verbose = 0)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = int(args.iter), verbose = 0)
         print('Performance of training set {}'.format(rank_svm.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 
         if args.pickle_folder and os.path.exists(args.pickle_folder):
-            model = pickle.dump(rank_svm, open(args.pickle_folder + 'model', 'wb'))
+            model = pickle.dump(rank_svm, open(os.path.join(args.pickle_folder, 'model'), 'wb'))

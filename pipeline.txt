@@ -27,7 +27,7 @@ Step 4, extract features and store it in libsvm format:
 python3 feature_extraction.py -f ../data2019/fair-TREC-training-sample.json -o ../features2019/libsvm.txt
 
 Step 5, train using
-python3 training.py -f ../features/libsvm.txt -p ../pickle/
+python3 training.py -f ../features2019/libsvm.txt -p ../model2019 -i 1000000000
 
 Step 6, score model
 python3 training.py --score -p ../pickle/
