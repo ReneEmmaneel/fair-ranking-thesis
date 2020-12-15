@@ -1,5 +1,11 @@
-General todo-list:
+Timeline:
 
+Fri 18 dec - First draft of thesis
+Fri 15 Jan - Go/No-go version of thesis
+Fri 22 Jan - Final version of thesis
+Week of 25-29 Jan - Presentation
+
+General todo-list:
 
 Things to complete in the sort term:
 
@@ -7,6 +13,7 @@ Things to complete in the sort term:
 
 []  Continue on thesis about things already implemented
 [X] Start writing about fair ranking in thesis + continue reading papers
+[]  Work on describing the framework
 
 [X] Make plan about needed functionality for fair ranking
 []  Create adjust-for-exposure algorithm (not very useful, but should be easy and makes it better to write about it in the thesis)
