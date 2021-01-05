@@ -15,9 +15,15 @@ Things to complete in the sort term:
 [X] Start writing about fair ranking in thesis + continue reading papers
 []  Work on describing the framework
 
-[X] Make plan about needed functionality for fair ranking
 []  Create adjust-for-exposure algorithm (not very useful, but should be easy and makes it better to write about it in the thesis)
+
+todo-list for PG-RANK:
+PG-RANK is cancelled due to problems in implementing/running the code, sadly
+
+[X] Make plan about needed functionality for fair ranking
 []  (start to) Implement Fair-PGRank as described by https://arxiv.org/pdf/2005.14713.pdf https://github.com/ashudeep/Fair-PGRank
+
+https://github.com/ashudeep/Fair-PGRank
 
 List of things that are completed:
 

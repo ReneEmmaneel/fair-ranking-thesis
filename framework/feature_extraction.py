@@ -134,16 +134,30 @@ class NUM_Feature(Feature):
     def get_feature_names(self):
         return ["num of {}".format(self.column)]
 
-def training_file_to_libsvm(input_file, data, output_file, features, verbose = False, max_rows = None):
+def training_file_to_libsvm(input_file, data, output_dir, features, verbose = False, max_rows = None):
     training_data = pd.read_json(input_file, lines=True)
 
-    #empty output file
+    libsvm_file = os.path.join(output_dir, 'libsvm.txt')
+    linker_file = os.path.join(output_dir, 'linker.txt')
+
+    #empty libsvm file
     try:
-        open(output_file, 'w').close()
+        open(libsvm_file, 'w').close()
     except FileNotFoundError:
-        print("FileNotFoundError: Directory probably does not exist")
+        print("FileNotFoundError: Directory does not exist")
         return
 
+    #empty linker file
+    try:
+        open(linker_file, 'w').close()
+    except FileNotFoundError:
+        print("FileNotFoundError: Directory does not exist")
+        return
+
+    with open(linker_file, "a") as out:
+        out.write("libsvm_id,document_id\n")
+
+    libsvm_id = 0
     for index, row in training_data.iterrows():
         if verbose:
             print('Current progress: {}/{}'.format(index + 1, training_data.shape[0]), end='\r')
@@ -170,17 +184,22 @@ def training_file_to_libsvm(input_file, data, output_file, features, verbose = F
                 feature_vector.extend(new_features)
 
 
-            with open(output_file, "a") as out:
-                out.write("{},{} qid:{} {}\n".format(relevance, id, qid, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
+            with open(libsvm_file, "a") as out:
+                out.write("{} qid:{} {}\n".format(relevance, qid, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
+
+            with open(linker_file, "a") as out:
+                out.write("{},{}\n".format(libsvm_id, id))
+
+            libsvm_id += 1
 
     if verbose:
-        print("\nFeature extraction done! Saved in libsvm format to {}".format(output_file))
+        print("\nFeature extraction done! Saved in libsvm format to {}".format(output_dir))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", dest="infile", required=True,
                         help="training file", metavar="FILE")
-    parser.add_argument("-o", "--out", dest="outfile", required=True,
+    parser.add_argument("-o", "--out", dest="outdir", required=True,
                         help="output file", metavar="FILE")
     args = parser.parse_args()
 
@@ -202,4 +221,4 @@ if __name__ == '__main__':
     feature_names_flat = [item for sublist in feature_names for item in sublist]
     print('\n'.join('{}:\t{}'.format(i, f) for i, f in enumerate(feature_names_flat)))
 
-    training_file_to_libsvm(args.infile, data, args.outfile, features, verbose = True)
+    training_file_to_libsvm(args.infile, data, args.outdir, features, verbose = True)

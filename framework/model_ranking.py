@@ -11,8 +11,8 @@
 import numpy as np
 import argparse, os
 import pandas as pd
-import training
-from training import RankSVM
+import svm_training
+from svm_training import RankSVM
 from sklearn import datasets
 import pickle
 import math
@@ -26,7 +26,7 @@ def validate_file(f):
         raise argparse.ArgumentTypeError("{0} does not exist".format(f))
     return f
 
-def import_libsvm_and_rank(model, in_file):
+def import_libsvm_and_rank(model, in_file, linker_file):
     """Given a file in libsvm format, rerank the file into a ranked list of
     estimated relevance values, and write it to the given file
 
@@ -43,24 +43,27 @@ def import_libsvm_and_rank(model, in_file):
         ]
 
     """
-    data = datasets.load_svmlight_file(in_file, query_id = True, multilabel=True)
+    data = datasets.load_svmlight_file(in_file, query_id = True)
     X = data[0].toarray()
     y = data[1]
     qid = data[2]
+
+    linker_dataframe = pd.read_csv(linker_file)
 
     # step 1, make a ranked_list with qid, rel_vector, feature_vec
     ranked_list = []
     for i, x in enumerate(X):
         #if qid already exists, add to the list
+
         added = False
         for query in ranked_list:
             if query[0] == qid[i]:
-                query[1].append((y[i][0], int(y[i][1]), x))
+                query[1].append((y[i], int(linker_dataframe['document_id'].iloc[i]), x))
                 added = True
                 break
         #else add the qid
         if not added:
-            ranked_list.append([qid[i], [(y[i][0], int(y[i][1]), x)]])
+            ranked_list.append([qid[i], [(y[i], int(linker_dataframe['document_id'].iloc[i]), x)]])
 
     #step 2, reranking; for every query rank the feature vectors using the given model
     for i, query in enumerate(ranked_list):
@@ -215,13 +218,15 @@ if __name__ == '__main__':
                         help="pickled data of the model", metavar="FILE")
     parser.add_argument("-f", "--file", dest="libsvm_file", required=True, type=validate_file,
                         help="training data in libsvm format", metavar="FILE")
+    parser.add_argument("-l", "--linker", dest="linker_file", required=True, type=validate_file,
+                        help="linker file for the libsvm file", metavar="FILE")
     parser.add_argument("-g", "--group", dest="group", required=True, type=validate_file,
                         help="group definition", metavar="FILE")
     args = parser.parse_args()
 
     data = loader.parse_files()
     model = pickle.load(open(args.model, 'rb'))
-    ranked_list = import_libsvm_and_rank(model, args.libsvm_file)
+    ranked_list = import_libsvm_and_rank(model, args.libsvm_file, args.linker_file)
     # print(discounted_cumulative_gain(ranked_list))
     print('fairness: {}'.format(fairness_ranking(data, ranked_list, args.group, verbose=False)[0]))
     print('utility: {}'.format(relevance_ranking(data, ranked_list)))

@@ -13,7 +13,8 @@ from warnings import filterwarnings
 import pandas as pd
 import pickle
 import sys
-filterwarnings('ignore')
+import torch
+from torch import nn
 
 def validate_file(f):
     if not os.path.exists(f):
@@ -37,7 +38,7 @@ def import_libsvm(file):
     y_trans : array, shape (k,)
         Output class labels, where classes have values {-1, +1}
     """
-    data = datasets.load_svmlight_file(file, query_id = True, multilabel=True)
+    data = datasets.load_svmlight_file(file, query_id = True)
     X = data[0].toarray()
     y = data[1]
     qid = data[2]
@@ -46,11 +47,11 @@ def import_libsvm(file):
     y_new = []
     comb = itertools.combinations(range(len(X)), 2)
     for k, (i, j) in enumerate(comb):
-        if y[i][0] == y[j][0] or (not qid[i] == qid[j]):
+        if y[i] == y[j] or (not qid[i] == qid[j]):
             continue
             # skip if same relevance or not the same query
         X_new.append(X[i] - X[j])
-        y_new.append(np.sign(y[i][0] - y[j][0]))
+        y_new.append(np.sign(y[i] - y[j]))
         # output balanced classes
         if y_new[-1] != (-1) ** k:
             y_new[-1] = - y_new[-1]
@@ -78,8 +79,10 @@ class RankSVM(svm.LinearSVC):
         -------
         self
         """
+        self.tol = 0.000001
         self.verbose = verbose
         self.max_iter = max_iter
+
         super(RankSVM, self).fit(X_trans, y_trans)
         return self
 
@@ -153,7 +156,6 @@ class RankSVM(svm.LinearSVC):
         return super(RankSVM, self).predict([feature_vec])[0]
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", dest="libsvm_file", required=False, type=validate_file,
@@ -172,7 +174,7 @@ if __name__ == '__main__':
         model = pickle.load(open(os.path.join(args.pickle_folder, 'model'), 'rb'))
         X_trans = pickle.load(open(os.path.join(args.pickle_folder, 'X_trans'), 'rb'))
         y_trans = pickle.load(open(os.path.join(args.pickle_folder, 'y_trans'), 'rb'))
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.5)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.8)
 
         print('Performance of training set {}'.format(model.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(model.score(X_trans_test, y_trans_test)))
@@ -192,7 +194,7 @@ if __name__ == '__main__':
             os._exit(0)
 
         print('loaded! start of training')
-        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.99)
+        X_trans_train, X_trans_test, y_trans_train, y_trans_test = model_selection.train_test_split(X_trans, y_trans, train_size=0.8)
 
         print('length of dataset: {}'.format(len(y_trans)))
 
