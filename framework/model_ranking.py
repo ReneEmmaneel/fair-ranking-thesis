@@ -3,10 +3,9 @@
 # File containing various ranking functions for ranking models.
 # It contains both functions for ranking and for fair ranking.
 
-# The functions (to be) implemented:
+# The functions implemented:
 # -Discounted Cumulative Gain
-# -Mean reciprocal rank
-# -Fair ranking functions?
+# -Fair ranking metrics as described in the TREC Fair Ranking
 
 import numpy as np
 import argparse, os
@@ -163,13 +162,13 @@ def fairness_ranking(data, ranked_list, group_file, gamma=0.5, stop_prob=0.7, ve
                 else:
                     author_exposure[int(a)] += exposure
 
+                if int(a) not in author_relevance:
+                    author_relevance[int(a)] = stop_prob * relevance
+                else:
+                    author_relevance[int(a)] += stop_prob * relevance
+
             exposure *= gamma
             exposure *= (1 - stop_prob * relevance)
-
-            if int(a) not in author_relevance:
-                author_relevance[int(a)] = stop_prob * relevance
-            else:
-                author_relevance[int(a)] += stop_prob * relevance
 
     #calculate group relevance and exposure
     group_exposure_sum = {}
@@ -227,6 +226,10 @@ if __name__ == '__main__':
     data = loader.parse_files()
     model = pickle.load(open(args.model, 'rb'))
     ranked_list = import_libsvm_and_rank(model, args.libsvm_file, args.linker_file)
+
+
+    print(ranked_list[0])
+
     # print(discounted_cumulative_gain(ranked_list))
     print('fairness: {}'.format(fairness_ranking(data, ranked_list, args.group, verbose=False)[0]))
     print('utility: {}'.format(relevance_ranking(data, ranked_list)))

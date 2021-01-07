@@ -149,12 +149,22 @@ class RankSVM(svm.LinearSVC):
 
     def predict_single(self, feature_vec1, feature_vec2):
         """
-        Given two feature vectors, return 1.0 vector 1 is predicted to be ranked higher,
+        Given two feature vectors, return 1.0 if vector 1 is predicted to be ranked higher,
         -1.0 if vector2 is predicted to be ranked higher.
         """
         feature_vec = [f1 - f2 for f1, f2 in zip(feature_vec1, feature_vec2)]
         return super(RankSVM, self).predict([feature_vec])[0]
 
+    def predict_single_value(self, feature_vec1, feature_vec2):
+        """
+        Given two feature vectors, return the extend to which vec1 is rated higher
+        than vec2.
+        """
+        feature_vec = [f1 - f2 for f1, f2 in zip(feature_vec1, feature_vec2)]
+        if hasattr(self, 'coef_'):
+            return np.dot(feature_vec, self.coef_.T)
+        else:
+            raise ValueError("Must call fit() prior to predict()")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
