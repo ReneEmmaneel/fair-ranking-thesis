@@ -25,6 +25,7 @@ Step 3, update config file
 
 Step 4, extract features and store it in libsvm format:
 python3 feature_extraction.py -f ../data2019/fair-TREC-training-sample.json -o ../features2019
+python3 feature_extraction.py -f ../data2020/TREC-Fair-Ranking-training-sample.json -o ../features2020
 
 Step 5, train using
 python3 svm_training.py -f ../features2019/libsvm.txt -p ../model2019 -i 1000000000
