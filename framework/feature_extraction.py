@@ -183,12 +183,12 @@ def training_file_to_libsvm(input_file, data, output_dir, features, verbose = Fa
                     print('error on line {}, feature {}'.format(index_feature, f.get_name()))
                 feature_vector.extend(new_features)
 
-
             with open(libsvm_file, "a") as out:
+                print("a")
                 out.write("{} qid:{} {}\n".format(relevance, qid, ' '.join('' if f is None else '{}:{}'.format(i, f) for i, f in enumerate(feature_vector))))
 
-            with open(linker_file, "a") as out:
-                out.write("{},{}\n".format(libsvm_id, id))
+            with open(linker_file, "a") as linker:
+                linker.write("{},{}\n".format(libsvm_id, id))
 
             libsvm_id += 1
 

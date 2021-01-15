@@ -30,6 +30,9 @@ python3 feature_extraction.py -f ../data2020/TREC-Fair-Ranking-training-sample.j
 Step 5, train using
 python3 svm_training.py -f ../features2019/libsvm.txt -p ../model2019 -i 1000000000
 
-Step 6, score model
+Step 6, adjust for exposure
+python3 adjust_for_exposure.py -m ../model2019/model -f ../features2019/libsvm.txt -g ../data2019/fair-TREC-sample-author-groups.csv -l ../features2019/linker.txt
+
+Step 7, score model
 python3 svm_training.py --score -p ../model2019/
-python3 model_ranking.py -m ../model2019/model -f ../features2019/libsvm.txt -g ../data2019/fair-TREC-sample-author-groups.csv -l ../features2019/linker.txts
+python3 model_ranking.py -m ../model2019/model -f ../features2019/libsvm.txt -g ../data2019/fair-TREC-sample-author-groups.csv -l ../features2019/linker.txt

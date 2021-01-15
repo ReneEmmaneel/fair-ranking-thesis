@@ -67,7 +67,7 @@ class RankSVM(svm.LinearSVC):
     See object :ref:`svm.LinearSVC` for a full description of parameters.
     """
 
-    def fit(self, X_trans, y_trans, max_iter = 1000, verbose = 1):
+    def fit(self, X_trans, y_trans, tol = 0.000001, max_iter = 1000, verbose = 1):
         """
         Fit a pairwise ranking model.
         Parameters
@@ -79,7 +79,7 @@ class RankSVM(svm.LinearSVC):
         -------
         self
         """
-        self.tol = 0.000001
+        self.tol = tol
         self.verbose = verbose
         self.max_iter = max_iter
 
@@ -174,8 +174,11 @@ if __name__ == '__main__':
                         help="dump pickle info", metavar="FOLDER")
     parser.add_argument("-i", "--iter", dest="iter", required=False,
                         help="amount of iterations", metavar="INT")
+    parser.add_argument("-t", "--tol", dest="tol", required=False,
+                        help="max tolerance", metavar="FLOAT")
     parser.add_argument("--score", dest="score", required=False, action="store_true",
                         help="score pickled model")
+    parser.set_defaults(tol=0.000001)
     parser.set_defaults(iter=1000)
 
     args = parser.parse_args()
@@ -210,7 +213,7 @@ if __name__ == '__main__':
 
         #Train the model, and print the performance of the model. If you want to plot the performance over iterations, use:
         #RankSVM().fit_and_plot(X_trans_train, y_trans_train, X_trans_test, y_trans_test)
-        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, max_iter = int(args.iter), verbose = 0)
+        rank_svm = RankSVM().fit(X_trans_train, y_trans_train, tol = float(args.tol), max_iter = int(args.iter), verbose = 0)
         print('Performance of training set {}'.format(rank_svm.score(X_trans, y_trans)))
         print('Performance of testing set {}'.format(rank_svm.score(X_trans_test, y_trans_test)))
 

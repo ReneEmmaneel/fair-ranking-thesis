@@ -37,8 +37,9 @@ def load_s2_data(data, article):
         return pd.Series([])
 
 def load_authors(data, authors):
-    author_list = np.array([author['ids'] for author in authors])
-    author_int_ids = [int(id) for id in author_list.flatten() if id is not None]
+    author_list = np.array([author['ids'] for author in authors], dtype=object)
+    author_int_ids = [id for id in author_list.flatten() if id is not None]
+    author_int_ids = [int(id) for id in author_int_ids if type(id) is not list]
     af = data['author_metadata_file']
     author_data = af[af['corpus_author_id'].isin(author_int_ids)]
     return author_data

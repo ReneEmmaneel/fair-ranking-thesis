@@ -154,6 +154,7 @@ def fairness_ranking(data, ranked_list, group_file, gamma=0.5, stop_prob=0.7, ve
         exposure = 1.0
         for doc in query[1]:
             relevance = doc[0]
+
             authors_id = data_combining.get_data(doc[1], data = data)['authors']['corpus_author_id']
 
             for a in authors_id:
@@ -226,9 +227,6 @@ if __name__ == '__main__':
     data = loader.parse_files()
     model = pickle.load(open(args.model, 'rb'))
     ranked_list = import_libsvm_and_rank(model, args.libsvm_file, args.linker_file)
-
-
-    print(ranked_list[0])
 
     # print(discounted_cumulative_gain(ranked_list))
     print('fairness: {}'.format(fairness_ranking(data, ranked_list, args.group, verbose=False)[0]))
